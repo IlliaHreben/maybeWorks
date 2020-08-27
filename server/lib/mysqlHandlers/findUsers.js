@@ -1,21 +1,32 @@
-const Users = require('../mysqlSchemas')
+const { Op } = require('sequelize')
 
-async const findUsers = (page, {name, surname}) => {
-  const offset = page * 12 - 12
-  const limit = page * 12
+const { Users } = require('../mysqlSchemas')
 
-  const usersList = await Users.findAll({
+ const findUsers = async ({page, pageSize}, search) => {
+  const offset = page * pageSize - pageSize
+  const limit = page * pageSize
+
+  const {count, rows} = await Users.findAndCountAll({
     where: {
-      [or]: [
-        {name},
-        {surname},
+      [Op.or]: [
+        {
+          name: {
+            [Op.startsWith]: search
+          }
+        }, {
+          surname: {
+          [Op.startsWith]: search
+          }
+        }
       ]
     },
     offset,
     limit
   })
 
-  return usersList
+  const pageCount = Math.ceil(count / pageSize)
+
+  return {users: rows, pageCount}
 }
 
 module.exports = findUsers

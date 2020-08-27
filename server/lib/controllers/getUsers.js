@@ -1,31 +1,30 @@
 const findUsers = require('../mysqlHandlers/findUsers')
 
-async const getUsers = ctx => {
-  const elementsOnPage = 12
+ const getUsers = async ctx => {
 
-  const {page, name, surname} = ctx.params
+  const {page = 1, pageSize = 10, search = ''} = ctx.query
 
-  let users
   try {
-    users = await findUsers({page, elementsOnPage}, {name, surname})
-  } catch {
-    ctx.status = '400'
+    const {users, pageCount} = await findUsers({page, pageSize}, search)
+
+    ctx.status = 200
+    ctx.body = {
+      ok: true,
+      data: {
+        users: users.map(formatUsers),
+        pagination: {
+          pageCount,
+          pageSize,
+          page
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err)
+    ctx.status = 500
     ctx.body = {
       ok: false,
-      error: 'Cannot find users'
-    }
-  }
-
-
-  ctx.status = '200'
-  ctx.body = {
-    ok: true,
-    data: {
-      users: users.map(formatUsers),
-      pagination: {
-        elementsOnPage,
-        page
-      }
+      error: 'Internal server error'
     }
   }
 }
