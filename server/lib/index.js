@@ -2,15 +2,22 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const app = new Koa()
 
-const bodyParser = require('body-parser')
+const getUsers = require('./controllers/getUsers')
+const getTasks = require('./controllers/getTasks')
+const getProjects = require('./controllers/getProjects')
+const createUser = require('./controllers/createUser')
+const createTask = require('./controllers/createTask')
+const createProject = require('./controllers/createProject')
+
 
 const api = new Router({ prefix: '/api' })
-api.get('/', hello)
+  .get('/users', getUsers)
+  .get('/tasks', getTasks)
+  .get('/projects', getProjects)
+  .post('/users', createUser)
+  .post('/tasks', createTask)
+  .post('/projects', createProject)
 
-function hello (ctx, next) {
-  ctx.body = "Hello world!"
-  next()
-}
 
 app.use(api.routes())
 app.listen(3000)
