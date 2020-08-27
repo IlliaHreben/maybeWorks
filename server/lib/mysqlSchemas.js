@@ -46,7 +46,7 @@ const Projects = sequelize.define('projects', {
     type: Sequelize.STRING,
     allowNull: false
   },
-  userId: {
+  authorId: {
     type: Sequelize.INTEGER,
     allowNull: false
   }
@@ -75,17 +75,45 @@ const Tasks = sequelize.define('task', {
     type: Sequelize.STRING,
     allowNull: false
   },
-  userId: {
+  authorId: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  projectId: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  assigneeId: {
     type: Sequelize.INTEGER,
     allowNull: false
   }
 })
 
-Users.hasMany(Projects, {onDelete: 'cascade'})
-Users.hasMany(Tasks, {onDelete: 'cascade'})
+Projects.belongsToMany(Users, {through: 'usersProjects'})
+Users.belongsToMany(Projects, {through: 'usersProjects'})
 
-// Projects.hasOne(Users, {onDelete: 'cascade'})
-// Tasks.hasOne(Users, {onDelete: 'cascade'})
+Tasks.belongsTo(Users, {
+  onDelete: 'cascade',
+  foreignKey: 'assigneeId'
+})
+Users.hasMany(Tasks, {onDelete: 'cascade', foreignKey: 'assigneeId'})
+
+
+Projects.hasMany(Tasks, {onDelete: 'cascade'})
+Tasks.belongsTo(Projects, {onDelete: 'cascade'})
+
+Projects.belongsTo(Users, {
+  onDelete: 'cascade',
+  foreignKey: 'authorId'
+})
+Users.hasMany(Projects, {onDelete: 'cascade', foreignKey: 'authorId'})
+
+Tasks.belongsTo(Users, {
+  onDelete: 'cascade',
+  foreignKey: 'authorId'
+})
+Users.hasMany(Tasks, {onDelete: 'cascade', foreignKey: 'authorId'})
+
 
 
 
