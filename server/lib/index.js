@@ -11,7 +11,7 @@ const createProject = require('./controllers/createProject')
 
 
 const api = new Router({ prefix: '/api' })
-  .get('/users', getUsers)
+  .get('/users/:page/:name/:surname', getUsers)
   .get('/tasks', getTasks)
   .get('/projects', getProjects)
   .post('/users', createUser)
