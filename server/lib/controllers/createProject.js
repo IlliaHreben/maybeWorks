@@ -1,20 +1,16 @@
-const findProjects = require('../mysqlHandlers/findProjects')
+const insertProject = require('../mysqlHandlers/insertProject')
 
-const getProjects = async ctx => {
+ const createProject = async ctx => {
 
   try {
-    const {users, pageCount} = await findProjects(ctx.query)
+    const project = await insertProject(JSON.stringify(ctx.request.body))
 
     ctx.status = 200
+    ctx.message = 'User was created'
     ctx.body = {
       ok: true,
       data: {
-        users: users.map(formatUsers),
-        pagination: {
-          pageCount,
-          pageSize,
-          page
-        }
+        user: formatProject(project)
       }
     }
   } catch (err) {
@@ -49,4 +45,4 @@ const formatProjects = project => {
   }
 }
 
-module.exports = getUsers
+module.exports = createProject
