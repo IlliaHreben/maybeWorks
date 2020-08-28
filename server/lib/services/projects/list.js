@@ -1,89 +1,75 @@
 const { Op } = require('sequelize')
 
-const {Projects, Users} = require('../../model')
+const {Projects, Users, Tasks} = require('../../model')
 const formatProject = require('./format')
 
 const findProject = async filters => {
-  const {
-    page = 1,
-    pageSize = 10,
-    search = '', // name or body
-    statuses = '',
-    author = '', // name or surname
-    participant = '', //name or surname
-    participantId = null,
-    mark = null
-  } = filters
+  const { page, pageSize } = filters
+
   const offset = page * pageSize - pageSize
   const limit = page * pageSize
-  const formatedStatuses = statuses.split(',')
-  const participantIds = participantId.split(',')
-  console.log(author)
+
+  const projectsWhere = {}
+  if (filters.search) {
+    projectsWhere[Op.and] = {
+      [Op.or]: {
+        name: { [Op.startsWith]: filters.search },
+        body: { [Op.startsWith]: filters.search }
+      }
+    }
+  }
+  if (filters.statuses) {
+    projectsWhere[Op.and]
+    ? projectsWhere[Op.and].status = filters.statuses.split(',')
+    : projectsWhere[Op.and] = { status: filters.statuses.split(',') }
+  }
+
+  const tasksWhere = {}
+  if (filters.mark) {
+    tasksWhere.mark = { [Op.between]: filters.mark.split(',') }
+  }
+
+  const authorWhere = {}
+  if (filters.author) {
+    authorWhere[Op.or] = {
+      name: { [Op.startsWith]: filters.author },
+      surname: { [Op.startsWith]: filters.author }
+    }
+  }
+
+  const usersWhere = {}
+  if (filters.participants) {
+    usersWhere[Op.and] = {
+      [Op.or]: {
+        name: { [Op.startsWith]: filters.participant },
+        surname: { [Op.startsWith]: filters.participant }
+      }
+    }
+  }
+  if (filters.participantId) {
+    usersWhere[Op.and]
+    ? usersWhere[Op.and].id = filters.participantId
+    : usersWhere[Op.and] = { id: filters.participantId }
+  }
+  console.log(usersWhere, filters)
 
   const {rows, count} = await Projects.findAndCountAll({
-    where: {
-      [Op.and]: {
-
-        [Op.or]:
-          {
-            name: {
-              [Op.startsWith]: search // like has low performance
-            },
-
-            body: {
-              [Op.startsWith]: search
-            }
-          }
-        ,
-        status: { [Op.in]: formatedStatuses }
-      }
-    },
+    where: projectsWhere,
     offset,
     limit,
     include: [
-      // {
-      //   model: Tasks,
-      //   where: {
-      //     mark: {
-      //       [Op.gt]: taskAssessment
-      //     }
-      //   }
-      // },
       {
-        model: Users,
-        as: 'Author',
-        where: {
-          [Op.or]:
-            {
-              name: {
-                [Op.startsWith]: author
-              },
-
-              surname: {
-                [Op.startsWith]: author
-              }
-            }
-
-        }
+        model: Tasks,
+        where: tasksWhere,
+        required: false
       }, {
         model: Users,
-        where: {
-          [Op.or]: [
-            {
-              name: {
-                [Op.startsWith]: participant
-              }
-            }, {
-              surname: {
-                [Op.startsWith]: participant
-              }
-            }, {
-              id: {
-                [Op.in]: participantIds
-              }
-            }
-          ]
-        }
+        as: 'Author',
+        where: authorWhere
+      }, {
+        model: Users,
+        where: usersWhere,
+        required: false
       }
     ]
   })
