@@ -1,4 +1,6 @@
-const { Users } = require('../mysqlSchemas')
+const { Users } = require('../../model')
+
+const formatUser = require('./format')
 
 const insertUser = async ({email, name, surname}) => {
 
@@ -8,7 +10,7 @@ const insertUser = async ({email, name, surname}) => {
     surname
   })
 
-  return user
+  return formatUser(user)
 }
 
 module.exports = insertUser

@@ -1,7 +1,7 @@
-const { Projects, Users, sequelize } = require('../mysqlSchemas')
+const { Projects, sequelize } = require('../../model')
+const formatProject = require('./format')
 
-
-const insertProject = async ({authorId, name, body, status, userIds}) => {
+const execute = async ({authorId, name, body, status, userIds}) => {
 
   // const user = await Users.findByPk(id)
 
@@ -19,8 +19,8 @@ const insertProject = async ({authorId, name, body, status, userIds}) => {
     return project
   })
 
-  return result
+  return formatProject(result)
 }
 
 
-module.exports = insertProject
+module.exports = execute

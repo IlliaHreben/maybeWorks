@@ -1,5 +1,5 @@
-const { Tasks } = require('../mysqlSchemas')
-
+const { Tasks } = require('../../model')
+const formatTask = require('./format')
 
 const insertTask = async ({name, description, mark, status, authorId, projectId, assigneeId}) => {
 
@@ -16,7 +16,7 @@ const insertTask = async ({name, description, mark, status, authorId, projectId,
   })
 
 
-  return task
+  return formatTask(task)
 }
 
 

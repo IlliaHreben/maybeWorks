@@ -1,6 +1,7 @@
 const { Op } = require('sequelize')
 
-const { Users } = require('../mysqlSchemas')
+const { Users } = require('../../model')
+const formatUser = require('./format')
 
  const findUsers = async ({page, pageSize}, search) => {
   const offset = page * pageSize - pageSize
@@ -26,7 +27,7 @@ const { Users } = require('../mysqlSchemas')
 
   const pageCount = Math.ceil(count / pageSize)
 
-  return {users: rows, pageCount}
+  return {users: rows.map(formatUser), pageCount}
 }
 
 module.exports = findUsers
