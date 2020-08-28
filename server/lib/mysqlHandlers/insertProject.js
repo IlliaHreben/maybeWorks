@@ -2,7 +2,7 @@ const { Projects, Users, sequelize } = require('../mysqlSchemas')
 
 
 const insertProject = async ({authorId, name, body, status, userIds}) => {
-  console.log(name)
+
   // const user = await Users.findByPk(id)
 
   const result = await sequelize.transaction(async t => {

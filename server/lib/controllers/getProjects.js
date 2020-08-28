@@ -3,17 +3,17 @@ const findProjects = require('../mysqlHandlers/findProjects')
 const getProjects = async ctx => {
 
   try {
-    const {users, pageCount} = await findProjects(ctx.query)
+    const {projects, pageCount} = await findProjects(ctx.query)
 
     ctx.status = 200
     ctx.body = {
       ok: true,
       data: {
-        users: users.map(formatUsers),
+        projects: projects.map(formatProjects),
         pagination: {
           pageCount,
-          pageSize,
-          page
+          pageSize: ctx.query.pageSize,
+          page: ctx.query.page
         }
       }
     }
