@@ -49,4 +49,4 @@ const formatProjects = project => {
   }
 }
 
-module.exports = getUsers
+module.exports = getProjects

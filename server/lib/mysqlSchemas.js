@@ -36,7 +36,7 @@ const Projects = sequelize.define('projects', {
     allowNull: false
   },
   name: {
-    type: Sequelize.FLOAT,
+    type: Sequelize.STRING,
     allowNull: false
   },
   body: {
@@ -117,12 +117,12 @@ Users.hasMany(Tasks, {onDelete: 'cascade', foreignKey: 'authorId'})
 
 
 
-
-sequelize.sync({force: true})
+// {force: true}
+sequelize.sync({force: false})
   .then(() => {
     console.log('Sucessfuly sync.')
   })
   .catch(err => console.log('ERROR!!! ' + err.message))
 
 
-module.exports = { Users, Projects, Tasks }
+module.exports = { Users, Projects, Tasks, sequelize }

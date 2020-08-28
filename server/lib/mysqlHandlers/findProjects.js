@@ -88,4 +88,4 @@ const findProject = async filters => {
   return {users: rows, pageCount}
 }
 
-module.exports = findUsers
+module.exports = findProject

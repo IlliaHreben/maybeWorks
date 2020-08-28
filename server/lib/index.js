@@ -1,22 +1,23 @@
 const Koa = require('koa')
 const Router = require('koa-router')
-const koaBody = require('koa-body')
+const bodyParser = require('koa-bodyparser')
 const app = new Koa()
 
 const getUsers = require('./controllers/getUsers')
 // const getTasks = require('./controllers/getTasks')
-// const getProjects = require('./controllers/getProjects')
+const getProjects = require('./controllers/getProjects')
 const createUser = require('./controllers/createUser')
 // const createTask = require('./controllers/createTask')
-// const createProject = require('./controllers/createProject')
+const createProject = require('./controllers/createProject')
 
 
 const api = new Router({ prefix: '/api' })
+  .use(bodyParser())
   .get('/users', getUsers)
-  // .get('/projects', getProjects)
+  .get('/projects', getProjects)
   // .get('/tasks', getTasks)
-  .post('/users', koaBody(), createUser)
-  // .post('/projects', createProject)
+  .post('/users', createUser)
+  .post('/projects', createProject)
   // .post('/tasks', createTask)
 
 

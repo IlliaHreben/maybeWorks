@@ -1,7 +1,7 @@
 const insertUser = require('../mysqlHandlers/insertUser')
 
  const createUser = async ctx => {
-  const {email, name, surname} = JSON.stringify(ctx.request.body)
+  const {email, name, surname} = ctx.request.body
 
   try {
     const user = await insertUser(email, name, surname)

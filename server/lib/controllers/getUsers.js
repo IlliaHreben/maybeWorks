@@ -30,9 +30,10 @@ const findUsers = require('../mysqlHandlers/findUsers')
 }
 
 const formatUsers = user => {
-  const {name, surname, email} = user
+  const {id, name, surname, email} = user
 
   return {
+    id,
     name,
     surname,
     email

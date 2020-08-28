@@ -3,14 +3,14 @@ const insertProject = require('../mysqlHandlers/insertProject')
  const createProject = async ctx => {
 
   try {
-    const project = await insertProject(JSON.stringify(ctx.request.body))
+    const project = await insertProject(ctx.request.body)
 
     ctx.status = 200
     ctx.message = 'User was created'
     ctx.body = {
       ok: true,
       data: {
-        user: formatProject(project)
+        project: formatProjects(project)
       }
     }
   } catch (err) {
@@ -25,23 +25,19 @@ const insertProject = require('../mysqlHandlers/insertProject')
 
 const formatProjects = project => {
   const {
+    id,
     name,
     body,
     status,
-    users: {
-      name: authorName,
-      surname: authorSurname
-    },
-    tasks
+    authorId
   } = project
 
   return {
+    id,
     name,
     body,
     status,
-    authorName,
-    authorSurname,
-    tasks
+    authorId
   }
 }
 

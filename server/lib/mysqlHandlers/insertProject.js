@@ -1,21 +1,26 @@
-const { Projects, Users } = require('../mysqlSchemas')
+const { Projects, Users, sequelize } = require('../mysqlSchemas')
 
-const insertUser = async (name, body, status, author) => {
 
-  const user = await Users.findOne({where:
-    {
-      name: author.name,
-      surname: author.surname
-    }
+const insertProject = async ({authorId, name, body, status, userIds}) => {
+  console.log(name)
+  // const user = await Users.findByPk(id)
+
+  const result = await sequelize.transaction(async t => {
+
+    const project = await Projects.create({
+      name,
+      body,
+      status,
+      authorId
+    }, {transaction: t})
+
+    await project.setUsers( userIds, {transaction: t} )
+
+    return project
   })
-  const project = await Projects.create({
-    name,
-    body,
-    status,
-    authorId: user.id
-  })
 
-  return project
+  return result
 }
 
-module.exports = insertUser
+
+module.exports = insertProject
