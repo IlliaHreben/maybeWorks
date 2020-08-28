@@ -6,7 +6,7 @@ const insertProject = require('../mysqlHandlers/insertProject')
     const project = await insertProject(ctx.request.body)
 
     ctx.status = 200
-    ctx.message = 'User was created'
+    ctx.message = 'Project was created'
     ctx.body = {
       ok: true,
       data: {

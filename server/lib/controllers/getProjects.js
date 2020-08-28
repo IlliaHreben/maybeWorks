@@ -29,6 +29,7 @@ const getProjects = async ctx => {
 
 const formatProjects = project => {
   const {
+    id,
     name,
     body,
     status,
@@ -40,6 +41,7 @@ const formatProjects = project => {
   } = project
 
   return {
+    id,
     name,
     body,
     status,

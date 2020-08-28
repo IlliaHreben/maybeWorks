@@ -7,7 +7,7 @@ const getUsers = require('./controllers/getUsers')
 // const getTasks = require('./controllers/getTasks')
 const getProjects = require('./controllers/getProjects')
 const createUser = require('./controllers/createUser')
-// const createTask = require('./controllers/createTask')
+const createTask = require('./controllers/createTask')
 const createProject = require('./controllers/createProject')
 
 
@@ -18,7 +18,7 @@ const api = new Router({ prefix: '/api' })
   // .get('/tasks', getTasks)
   .post('/users', createUser)
   .post('/projects', createProject)
-  // .post('/tasks', createTask)
+  .post('/tasks', createTask)
 
 
 app.use(api.routes())

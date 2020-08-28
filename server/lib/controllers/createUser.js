@@ -1,10 +1,9 @@
 const insertUser = require('../mysqlHandlers/insertUser')
 
  const createUser = async ctx => {
-  const {email, name, surname} = ctx.request.body
 
   try {
-    const user = await insertUser(email, name, surname)
+    const user = await insertUser(ctx.request.body)
 
     ctx.status = 200
     ctx.message = 'User was created'
