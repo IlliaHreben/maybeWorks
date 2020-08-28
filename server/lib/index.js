@@ -4,10 +4,12 @@ const bodyParser = require('koa-bodyparser')
 const app = new Koa()
 
 const controllers = require('./controllers/index')
+const handleError = require('./controllers/middleware')
 
 
 const api = new Router({ prefix: '/api' })
   .use(bodyParser())
+  .use(handleError)
   .get('/users', controllers.users.list)
   .post('/users', controllers.users.create)
   .get('/projects', controllers.projects.list)

@@ -4,23 +4,29 @@ const formatProject = project => {
     name,
     body,
     status,
-    Author: {
-      name: authorName,
-      surname: authorSurname
-    },
+    Author: author,
     tasks,
     users
   } = project
 
+  const authorInfo = {}
+  if (author && author.id) {
+    authorInfo.id = author.id
+  }
+  if (author && author.name) {
+    authorInfo.name = author.name
+  }
+  if (author && author.surname) {
+    authorInfo.surname = author.surname
+  }
   return {
     id,
     name,
     body,
     status,
-    authorName,
-    authorSurname,
+    authorInfo,
     tasks,
-    users: users.map(user => user.get())
+    users: users ? users.map(user => user.get()) : []
   }
 }
 
