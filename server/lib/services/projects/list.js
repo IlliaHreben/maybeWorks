@@ -1,23 +1,24 @@
 const { Op } = require('sequelize')
 
-const {Projects, Tasks, Users} = require('../mysqlSchemas')
+const {Projects, Users} = require('../../model')
+const formatProject = require('./format')
 
 const findProject = async filters => {
   const {
     page = 1,
     pageSize = 10,
     search = '', // name or body
-    status = '',
+    statuses = '',
     author = '', // name or surname
     participant = '', //name or surname
     participantId = null,
-    taskAssessment = null
+    mark = null
   } = filters
   const offset = page * pageSize - pageSize
   const limit = page * pageSize
-  const statuses = status.split(',')
+  const formatedStatuses = statuses.split(',')
   const participantIds = participantId.split(',')
-
+  console.log(author)
 
   const {rows, count} = await Projects.findAndCountAll({
     where: {
@@ -34,7 +35,7 @@ const findProject = async filters => {
             }
           }
         ,
-        status: { [Op.in]: statuses }
+        status: { [Op.in]: formatedStatuses }
       }
     },
     offset,
@@ -48,8 +49,9 @@ const findProject = async filters => {
       //     }
       //   }
       // },
-       {
+      {
         model: Users,
+        as: 'Author',
         where: {
           [Op.or]:
             {
@@ -63,33 +65,32 @@ const findProject = async filters => {
             }
 
         }
-      // }, {
-      //   model: Users,
-      //   through: {
-      //     attributes: ['name', 'surname', 'id'],
-      //     where: {
-      //       [Op.or]: [
-      //         {
-      //           name: {
-      //             [Op.startsWith]: participant
-      //           }
-      //         }, {
-      //           surname: {
-      //             [Op.startsWith]: participant
-      //           }
-      //         }, {
-      //           id: participantIds
-      //         }
-      //       ]
-      //     }
-      //   }
+      }, {
+        model: Users,
+        where: {
+          [Op.or]: [
+            {
+              name: {
+                [Op.startsWith]: participant
+              }
+            }, {
+              surname: {
+                [Op.startsWith]: participant
+              }
+            }, {
+              id: {
+                [Op.in]: participantIds
+              }
+            }
+          ]
+        }
       }
     ]
   })
 
   const pageCount = Math.ceil(count / pageSize)
 
-  return {projects: rows, pageCount}
+  return {projects: rows.map(formatProject), pageCount}
 }
 
 module.exports = findProject

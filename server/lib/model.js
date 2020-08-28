@@ -103,11 +103,17 @@ Users.hasMany(Tasks, {onDelete: 'cascade', foreignKey: 'assigneeId'})
 Projects.hasMany(Tasks, {onDelete: 'cascade'})
 Tasks.belongsTo(Projects, {onDelete: 'cascade'})
 
-Projects.belongsTo(Users, {
+Projects.Author = Projects.belongsTo(Users, {
+  as: 'Author',
   onDelete: 'cascade',
   foreignKey: 'authorId'
 })
-Users.hasMany(Projects, {onDelete: 'cascade', foreignKey: 'authorId'})
+Users.AuthoredProjects = Users.hasMany(Projects, {
+  as: 'AuthoredProjects',
+  onDelete: 'cascade',
+  foreignKey: 'authorId'
+})
+
 
 Tasks.belongsTo(Users, {
   onDelete: 'cascade',
