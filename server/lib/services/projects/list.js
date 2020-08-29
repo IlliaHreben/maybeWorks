@@ -3,18 +3,30 @@ const { Op } = require('sequelize')
 const {Projects, Users, Tasks} = require('../../model')
 const formatProject = require('./format')
 
-const findProject = async filters => {
+const validatorRules = {
+  page: 'page_number',
+  pageSize: 'page_size',
+  projectSearch: [ 'string', { max_length: 100 } ],
+  statuses: [ 'task_statuses' ],
+  minMark: [ 'not_empty', 'task_mark', {default: 0} ],
+  maxMark: [ 'not_empty', 'task_mark', {default: 5} ],
+  author: [ 'not_empty', 'string', { min_length: 2 } ],
+  participantSearch: [ 'not_empty', 'string', { min_length: 2 } ],
+  participantId: [ 'not_empty', 'positive_integer']
+}
+
+const execute = async filters => {
   const { page, pageSize } = filters
 
   const offset = page * pageSize - pageSize
   const limit = page * pageSize
 
   const projectsWhere = {}
-  if (filters.search) {
+  if (filters.projectSearch) {
     projectsWhere[Op.and] = {
       [Op.or]: {
-        name: { [Op.startsWith]: filters.search },
-        body: { [Op.startsWith]: filters.search }
+        name: { [Op.startsWith]: filters.projectSearch },
+        body: { [Op.startsWith]: filters.projectSearch }
       }
     }
   }
@@ -25,8 +37,8 @@ const findProject = async filters => {
   }
 
   const tasksWhere = {}
-  if (filters.mark) {
-    tasksWhere.mark = { [Op.between]: filters.mark.split(',') }
+  if (filters.marks) {
+    tasksWhere.mark = { [Op.between]: filters.marks.split(',') }
   }
 
   const authorWhere = {}
@@ -38,11 +50,11 @@ const findProject = async filters => {
   }
 
   const usersWhere = {}
-  if (filters.participants) {
+  if (filters.participantSearch) {
     usersWhere[Op.and] = {
       [Op.or]: {
-        name: { [Op.startsWith]: filters.participant },
-        surname: { [Op.startsWith]: filters.participant }
+        name: { [Op.startsWith]: filters.participantSearch },
+        surname: { [Op.startsWith]: filters.participantSearch }
       }
     }
   }
@@ -79,4 +91,4 @@ const findProject = async filters => {
   return {projects: rows.map(formatProject), pageCount}
 }
 
-module.exports = findProject
+module.exports = {execute, validatorRules}

@@ -1,8 +1,15 @@
 const { Projects, sequelize } = require('../../model')
-const formatProject = require('./format')
 
 const ApiError = require('../apiError')
 const { ForeignKeyConstraintError } = require('sequelize')
+
+const validatorRules = {
+  name: [ 'required', 'string', { min_length: 2 } ],
+  body: [ 'required', 'string', { min_length: 2 } ],
+  status: [ 'task_status' ],
+  authorId: [ 'required', 'positive_integer'],
+  userIds: [ 'user_ids' ]
+}
 
 const execute = async ({authorId, name, body, status, userIds}) => {
   try {
@@ -20,7 +27,7 @@ const execute = async ({authorId, name, body, status, userIds}) => {
       return project
     })
 
-    return formatProject(result)
+    return {id: result.id}
   } catch (err) {
     if (err instanceof ForeignKeyConstraintError) {
       throw new ApiError({code: 'USER_OR_AUTHOR_NOT_FOUND', message: 'User or author not found'})
@@ -30,4 +37,4 @@ const execute = async ({authorId, name, body, status, userIds}) => {
 }
 
 
-module.exports = execute
+module.exports = {execute, validatorRules}

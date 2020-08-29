@@ -1,10 +1,15 @@
 const { Users } = require('../../model')
 
-const formatUser = require('./format')
 const ApiError = require('../apiError')
 const { UniqueConstraintError } = require('sequelize')
 
-const insertUser = async ({email, name, surname}) => {
+const validatorRules = {
+  email: ['required', 'trim', 'email', 'to_lc'],
+  name: [ 'required', 'string', { min_length: 2 } ],
+  surname: [ 'required', 'string', { min_length: 2 } ]
+}
+
+const execute = async ({email, name, surname}) => {
 
   try {
     const user = await Users.create({
@@ -13,7 +18,7 @@ const insertUser = async ({email, name, surname}) => {
       surname
     })
 
-    return formatUser(user)
+    return {id: user.id}
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
       throw new ApiError({code: 'EMAIL_NOT_UNIQUE', message: 'User already exist'})
@@ -23,4 +28,4 @@ const insertUser = async ({email, name, surname}) => {
 
 }
 
-module.exports = insertUser
+module.exports = {execute, validatorRules}

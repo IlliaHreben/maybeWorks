@@ -3,34 +3,35 @@ const { Op } = require('sequelize')
 const {Tasks, Users} = require('../../model')
 const formatTask = require('./format')
 
-const findProject = async filters => {
+const validatorRules = {
+  page: 'page_number',
+  pageSize: 'page_size',
+  search: [ 'not_empty', 'string', { max_length: 50 } ],
+  statuses: [ 'not_empty', 'task_statuses' ],
+  minMark: [ 'not_empty', 'task_mark', {default: 0} ],
+  maxMark: [ 'not_empty', 'task_mark', {default: 5} ],
+  author: [ 'not_empty', 'string', { max_length: 50 } ],
+  assignee: [ 'not_empty', 'string', { max_length: 50 } ],
+  assigneeId: [ 'not_empty', 'positive_integer']
+}
+
+const execute = async filters => {
   const { page, pageSize } = filters
-  
+
   const offset = page * pageSize - pageSize
   const limit = page * pageSize
 
-  const tasksWhere = {}
+  const tasksWhere = {
+    [Op.and]: { mark: {[Op.between]: [filters.minMark, filters.maxMark]} }
+  }
   if (filters.search) {
-    tasksWhere[Op.and] = {
-      [Op.or]: {
+    tasksWhere[Op.and][Op.or] = {
         name: { [Op.startsWith]: filters.search },
         description: { [Op.startsWith]: filters.search }
-      }
     }
   }
   if (filters.statuses) {
-    const formatedStatuses = { [Op.in]: filters.statuses.split(',') }
-
-    tasksWhere[Op.and]
-    ? tasksWhere[Op.and].status = formatedStatuses
-    : tasksWhere[Op.and] = { status: formatedStatuses }
-  }
-  if (filters.marks) {
-    const formatedMarks = { [Op.in]: filters.marks.split(',') }
-
-    tasksWhere[Op.and]
-    ? tasksWhere[Op.and].mark = formatedMarks
-    : tasksWhere[Op.and] = { mark: formatedMarks }
+    tasksWhere[Op.and].status = { [Op.or]: filters.statuses }
   }
 
   const usersWhere = {}
@@ -75,4 +76,4 @@ const findProject = async filters => {
   return {tasks: rows.map(formatTask), pageCount}
 }
 
-module.exports = findProject
+module.exports = {execute, validatorRules}

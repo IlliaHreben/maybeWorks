@@ -1,8 +1,14 @@
-const listTask = require('../services/tasks/list')
-const createTask = require('../services/tasks/create')
+const runService = require('../services/runService')
+const createTask = runService(require('../services/tasks/create'))
+const listTask = runService(require('../services/tasks/list'))
 
 const list = async ctx => {
-  const {tasks, pageCount} = await listTask(ctx.query)
+  const {statuses} = ctx.query
+
+  const {tasks, pageCount} = await listTask({
+    ...ctx.query,
+    statuses: statuses ? statuses.split(',') : []
+  })
 
   ctx.body = {
     ok: true,

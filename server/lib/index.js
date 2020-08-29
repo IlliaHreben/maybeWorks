@@ -3,8 +3,8 @@ const Router = require('koa-router')
 const bodyParser = require('koa-bodyparser')
 const app = new Koa()
 
-const controllers = require('./controllers/index')
-const handleError = require('./controllers/middleware')
+const controllers = require('./controllers')
+const {handleError} = require('./controllers/middleware')
 
 
 const api = new Router({ prefix: '/api' })

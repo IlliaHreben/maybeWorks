@@ -3,7 +3,13 @@ const { Op } = require('sequelize')
 const { Users } = require('../../model')
 const formatUser = require('./format')
 
- const findUsers = async ({page, pageSize}, search) => {
+const validatorRules = {
+  page: 'page_number',
+  pageSize: 'page_size',
+  search: [ 'string', { max_length: 20 } ]
+}
+
+const execute = async ({page, pageSize, search}) => {
   const offset = page * pageSize - pageSize
   const limit = page * pageSize
 
@@ -30,4 +36,4 @@ const formatUser = require('./format')
   return {users: rows.map(formatUser), pageCount}
 }
 
-module.exports = findUsers
+module.exports = {execute, validatorRules}

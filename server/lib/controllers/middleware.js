@@ -21,4 +21,4 @@ const handleError = async (ctx, next) => {
   }
 }
 
-module.exports = handleError
+module.exports = {handleError}
