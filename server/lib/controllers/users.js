@@ -1,5 +1,6 @@
-const createUser = require('../services/users/create')
-const listUsers = require('../services/users/list')
+const runService = require('../services/runService')
+const createUser = runService(require('../services/users/create'))
+const listUsers = runService(require('../services/users/list'))
 
  const create = async ctx => {
 
@@ -16,7 +17,7 @@ const listUsers = require('../services/users/list')
 const list = async ctx => {
   const {page = 1, pageSize = 10, search = ''} = ctx.query
 
-  const {users, pageCount} = await listUsers({page, pageSize}, search)
+  const {users, pageCount} = await listUsers({page, pageSize, search})
 
   ctx.body = {
     ok: true,

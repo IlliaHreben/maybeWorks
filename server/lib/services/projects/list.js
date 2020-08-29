@@ -1,89 +1,87 @@
 const { Op } = require('sequelize')
 
-const {Projects, Users} = require('../../model')
+const {Projects, Users, Tasks} = require('../../model')
 const formatProject = require('./format')
 
-const findProject = async filters => {
-  const {
-    page = 1,
-    pageSize = 10,
-    search = '', // name or body
-    statuses = '',
-    author = '', // name or surname
-    participant = '', //name or surname
-    participantId = null,
-    mark = null
-  } = filters
+const validatorRules = {
+  page: 'page_number',
+  pageSize: 'page_size',
+  projectSearch: [ 'string', { max_length: 100 } ],
+  statuses: [ 'task_statuses' ],
+  minMark: [ 'not_empty', 'task_mark', {default: 0} ],
+  maxMark: [ 'not_empty', 'task_mark', {default: 5} ],
+  author: [ 'not_empty', 'string', { min_length: 2 } ],
+  participantSearch: [ 'not_empty', 'string', { min_length: 2 } ],
+  participantId: [ 'not_empty', 'positive_integer']
+}
+
+const execute = async filters => {
+  const { page, pageSize } = filters
+
   const offset = page * pageSize - pageSize
   const limit = page * pageSize
-  const formatedStatuses = statuses.split(',')
-  const participantIds = participantId.split(',')
-  console.log(author)
+
+  const projectsWhere = {}
+  if (filters.projectSearch) {
+    projectsWhere[Op.and] = {
+      [Op.or]: {
+        name: { [Op.startsWith]: filters.projectSearch },
+        body: { [Op.startsWith]: filters.projectSearch }
+      }
+    }
+  }
+  if (filters.statuses) {
+    projectsWhere[Op.and]
+    ? projectsWhere[Op.and].status = filters.statuses.split(',')
+    : projectsWhere[Op.and] = { status: filters.statuses.split(',') }
+  }
+
+  const tasksWhere = {}
+  if (filters.marks) {
+    tasksWhere.mark = { [Op.between]: filters.marks.split(',') }
+  }
+
+  const authorWhere = {}
+  if (filters.author) {
+    authorWhere[Op.or] = {
+      name: { [Op.startsWith]: filters.author },
+      surname: { [Op.startsWith]: filters.author }
+    }
+  }
+
+  const usersWhere = {}
+  if (filters.participantSearch) {
+    usersWhere[Op.and] = {
+      [Op.or]: {
+        name: { [Op.startsWith]: filters.participantSearch },
+        surname: { [Op.startsWith]: filters.participantSearch }
+      }
+    }
+  }
+  if (filters.participantId) {
+    usersWhere[Op.and]
+    ? usersWhere[Op.and].id = filters.participantId
+    : usersWhere[Op.and] = { id: filters.participantId }
+  }
+  console.log(usersWhere, filters)
 
   const {rows, count} = await Projects.findAndCountAll({
-    where: {
-      [Op.and]: {
-
-        [Op.or]:
-          {
-            name: {
-              [Op.startsWith]: search // like has low performance
-            },
-
-            body: {
-              [Op.startsWith]: search
-            }
-          }
-        ,
-        status: { [Op.in]: formatedStatuses }
-      }
-    },
+    where: projectsWhere,
     offset,
     limit,
     include: [
-      // {
-      //   model: Tasks,
-      //   where: {
-      //     mark: {
-      //       [Op.gt]: taskAssessment
-      //     }
-      //   }
-      // },
       {
-        model: Users,
-        as: 'Author',
-        where: {
-          [Op.or]:
-            {
-              name: {
-                [Op.startsWith]: author
-              },
-
-              surname: {
-                [Op.startsWith]: author
-              }
-            }
-
-        }
+        model: Tasks,
+        where: tasksWhere,
+        required: false
       }, {
         model: Users,
-        where: {
-          [Op.or]: [
-            {
-              name: {
-                [Op.startsWith]: participant
-              }
-            }, {
-              surname: {
-                [Op.startsWith]: participant
-              }
-            }, {
-              id: {
-                [Op.in]: participantIds
-              }
-            }
-          ]
-        }
+        as: 'Author',
+        where: authorWhere
+      }, {
+        model: Users,
+        where: usersWhere,
+        required: false
       }
     ]
   })
@@ -93,4 +91,4 @@ const findProject = async filters => {
   return {projects: rows.map(formatProject), pageCount}
 }
 
-module.exports = findProject
+module.exports = {execute, validatorRules}
