@@ -6,13 +6,13 @@ const formatProject = require('./format')
 const validatorRules = {
   page: 'page_number',
   pageSize: 'page_size',
-  projectSearch: [ 'string', { max_length: 100 } ],
-  statuses: [ 'task_statuses' ],
+  projectSearch: ['not_empty', 'string', { max_length: 100 } ],
+  statuses: 'task_statuses',
   minMark: [ 'not_empty', 'task_mark', {default: 0} ],
   maxMark: [ 'not_empty', 'task_mark', {default: 5} ],
   author: [ 'not_empty', 'string', { min_length: 2 } ],
   participantSearch: [ 'not_empty', 'string', { min_length: 2 } ],
-  participantId: [ 'not_empty', 'positive_integer']
+  participantId: 'positive_integer'
 }
 
 const execute = async filters => {
@@ -32,13 +32,14 @@ const execute = async filters => {
   }
   if (filters.statuses) {
     projectsWhere[Op.and]
-    ? projectsWhere[Op.and].status = filters.statuses.split(',')
-    : projectsWhere[Op.and] = { status: filters.statuses.split(',') }
+    ? projectsWhere[Op.and].status = filters.statuses
+    : projectsWhere[Op.and] = { status: filters.statuses }
   }
 
-  const tasksWhere = {}
-  if (filters.marks) {
-    tasksWhere.mark = { [Op.between]: filters.marks.split(',') }
+  const tasksWhere = {
+    mark: {
+      [Op.between]: [filters.minMark, filters.maxMark]
+    }
   }
 
   const authorWhere = {}
@@ -63,7 +64,6 @@ const execute = async filters => {
     ? usersWhere[Op.and].id = filters.participantId
     : usersWhere[Op.and] = { id: filters.participantId }
   }
-  console.log(usersWhere, filters)
 
   const {rows, count} = await Projects.findAndCountAll({
     where: projectsWhere,

@@ -15,17 +15,18 @@ const create = async ctx => {
 }
 
 const list = async ctx => {
-  const {page, pageSize, projectSearch, statuses = '', marks = '', author, participantSearch, participantId = ''} = ctx.query
+  const {page, pageSize, projectSearch, statuses, minMark, maxMark, author, participantSearch, participantId} = ctx.query
 
   const {projects, pageCount} = await listProject({
     page,
     pageSize,
     projectSearch,
-    statuses: statuses.split(','),
-    marks: marks.split(','),
+    statuses: statuses ? statuses.split(',') : undefined,
+    minMark,
+    maxMark,
     author,
     participantSearch,
-    participantId: participantId.split(',')
+    participantId
   })
 
   ctx.body = {
