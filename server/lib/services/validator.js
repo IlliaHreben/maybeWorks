@@ -21,7 +21,7 @@ LIVR.Validator.registerAliasedDefaultRule({
 
 LIVR.Validator.registerAliasedDefaultRule({
     name: 'task_statuses',
-    rules: [ 'not_empty', { 'list_of': 'task_status'}],
+    rules: [{ 'list_of': 'task_status'}],
     error: 'WRONG_STATUSES'
 })
 

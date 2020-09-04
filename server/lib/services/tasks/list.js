@@ -76,4 +76,8 @@ const execute = async filters => {
   return {tasks: rows.map(formatTask), pageCount}
 }
 
+// const buildUsersWhere = filters => {
+//
+// }
+
 module.exports = {execute, validatorRules}
